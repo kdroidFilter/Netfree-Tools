@@ -26,32 +26,36 @@ jobs:
           java-version: '17'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # 3. Importer les certificats custom dans la JVM installée
+      # 3. Sauvegarder JAVA_HOME dans GITHUB_ENV
+      - name: Export JAVA_HOME
+        run: echo "JAVA_HOME=${{ steps.setup_java.outputs.java-home }}" >> $GITHUB_ENV
+
+      # 4. Importer les certificats custom dans la JVM installée
       - name: Import custom SSL certificates
         shell: bash
         run: |
           CERT_URLS=(
-             "https://netfree.link/cacert/isp/018/ca.crt"
-             "https://netfree.link/cacert/isp/019/ca.crt"
-             "https://netfree.link/cacert/isp/099/ca.crt"
-             "https://netfree.link/cacert/isp/itc/ca.crt"
-             "https://netfree.link/cacert/isp/x2one/ca.crt"
-             "https://netfree.link/cacert/isp/hadran-vpn/ca.crt"
-             "https://netfree.link/cacert/isp/yossi/ca.crt"
-             "https://netfree.link/cacert/isp/ib-itc/ca.crt"
-             "https://netfree.link/cacert/isp/ib-spotnet/ca.crt"
-             "https://netfree.link/cacert/isp/ib-partner/ca.crt"
-             "https://netfree.link/cacert/isp/netfree-anywhere/ca.crt"
-             "https://netfree.link/cacert/isp/kosher-sim/ca.crt"
-             "https://netfree.link/cacert/isp/sim-kasher-triple-c/ca.crt"
-             "https://netfree.link/cacert/isp/ksim-partner/ca.crt"
-             "https://netfree.link/cacert/isp/ksim-pele/ca.crt"
-             "https://netfree.link/cacert/isp/ksim-itc/ca.crt"
-             "https://netfree.link/cacert/isp/kosher-sim-cellcom/ca.crt"
-             "https://netfree.link/cacert/isp/amitnet/ca.crt"
-             "https://netfree.link/cacert/isp/bezeq/ca.crt"
-             "https://netfree.link/cacert/isp/hot/ca.crt"
-           )
+            "https://netfree.link/cacert/isp/018/ca.crt"
+            "https://netfree.link/cacert/isp/019/ca.crt"
+            "https://netfree.link/cacert/isp/099/ca.crt"
+            "https://netfree.link/cacert/isp/itc/ca.crt"
+            "https://netfree.link/cacert/isp/x2one/ca.crt"
+            "https://netfree.link/cacert/isp/hadran-vpn/ca.crt"
+            "https://netfree.link/cacert/isp/yossi/ca.crt"
+            "https://netfree.link/cacert/isp/ib-itc/ca.crt"
+            "https://netfree.link/cacert/isp/ib-spotnet/ca.crt"
+            "https://netfree.link/cacert/isp/ib-partner/ca.crt"
+            "https://netfree.link/cacert/isp/netfree-anywhere/ca.crt"
+            "https://netfree.link/cacert/isp/kosher-sim/ca.crt"
+            "https://netfree.link/cacert/isp/sim-kasher-triple-c/ca.crt"
+            "https://netfree.link/cacert/isp/ksim-partner/ca.crt"
+            "https://netfree.link/cacert/isp/ksim-pele/ca.crt"
+            "https://netfree.link/cacert/isp/ksim-itc/ca.crt"
+            "https://netfree.link/cacert/isp/kosher-sim-cellcom/ca.crt"
+            "https://netfree.link/cacert/isp/amitnet/ca.crt"
+            "https://netfree.link/cacert/isp/bezeq/ca.crt"
+            "https://netfree.link/cacert/isp/hot/ca.crt"
+          )
 
           KEYSTORE_PASS="${{ secrets.KEYSTORE_PASSWORD }}"
           if [ -z "$KEYSTORE_PASS" ]; then
@@ -80,18 +84,19 @@ jobs:
             fi
           done
 
-      # 4. Configurer Gradle pour utiliser JAVA_HOME
-      - name: Configure Gradle to use patched JAVA_HOME
+      # 5. Configurer Gradle pour utiliser JAVA_HOME
+      - name: Configure Gradle
+        shell: bash
         run: echo "org.gradle.java.home=$JAVA_HOME" >> gradle.properties
 
-      # 5. Construire l'application (packager)
+      # 6. Construire l'application (packager)
       - name: Build with Gradle
         run: |
           echo "Using JAVA_HOME=$JAVA_HOME"
           java -version
           ./gradlew packageDistributionForCurrentOS
 
-      # 6. Publier les artéfacts
+      # 7. Publier les artéfacts
       - name: Upload Linux artifact
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
