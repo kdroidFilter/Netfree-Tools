@@ -69,6 +69,14 @@ compose.desktop {
             targetFormats(TargetFormat.Pkg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "sample"
             packageVersion = "1.0.0"
+            description = "App with netfree certificate"
+            copyright = ""
+            vendor = "KDroidFilter"
+            macOS {
+                bundleID = "io.github.kdroidfilter.appwithnfcertificates"
+                dockName = "App with NF Certificates"
+            }
+
         }
     }
 }
