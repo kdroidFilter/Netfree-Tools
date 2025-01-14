@@ -13,11 +13,11 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-      # 1. Check out the source code
+      # 1. Récupérer le code
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # 2. Set up temurin JDK with proper authentication
+      # 2. Installer le JDK temurin 17
       - name: Set up temurin JDK
         uses: actions/setup-java@v4
         with:
@@ -25,81 +25,82 @@ jobs:
           java-version: '17'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # 3. Import multiple SSL certificates into JVM keystore
+      # 3. Importer les certificats custom dans la JVM installée
       - name: Import custom SSL certificates
         shell: bash
         run: |
           # Liste des URLs des certificats
           CERT_URLS=(
-          "https://netfree.link/cacert/isp/018/ca.crt"
-          "https://netfree.link/cacert/isp/019/ca.crt"
-          "https://netfree.link/cacert/isp/099/ca.crt"
-          "https://netfree.link/cacert/isp/itc/ca.crt"
-          "https://netfree.link/cacert/isp/x2one/ca.crt"
-          "https://netfree.link/cacert/isp/hadran-vpn/ca.crt"
-          "https://netfree.link/cacert/isp/yossi/ca.crt"
-          "https://netfree.link/cacert/isp/ib-itc/ca.crt"
-          "https://netfree.link/cacert/isp/ib-spotnet/ca.crt"
-          "https://netfree.link/cacert/isp/ib-partner/ca.crt"
-          "https://netfree.link/cacert/isp/netfree-anywhere/ca.crt"
-          "https://netfree.link/cacert/isp/kosher-sim/ca.crt"
-          "https://netfree.link/cacert/isp/sim-kasher-triple-c/ca.crt"
-          "https://netfree.link/cacert/isp/ksim-partner/ca.crt"
-          "https://netfree.link/cacert/isp/ksim-pele/ca.crt"
-          "https://netfree.link/cacert/isp/ksim-itc/ca.crt"
-          "https://netfree.link/cacert/isp/kosher-sim-cellcom/ca.crt"
-          "https://netfree.link/cacert/isp/amitnet/ca.crt"
-          "https://netfree.link/cacert/isp/bezeq/ca.crt"
-          "https://netfree.link/cacert/isp/hot/ca.crt"
+            "https://netfree.link/cacert/isp/018/ca.crt"
+            "https://netfree.link/cacert/isp/019/ca.crt"
+            "https://netfree.link/cacert/isp/099/ca.crt"
+            "https://netfree.link/cacert/isp/itc/ca.crt"
+            "https://netfree.link/cacert/isp/x2one/ca.crt"
+            "https://netfree.link/cacert/isp/hadran-vpn/ca.crt"
+            "https://netfree.link/cacert/isp/yossi/ca.crt"
+            "https://netfree.link/cacert/isp/ib-itc/ca.crt"
+            "https://netfree.link/cacert/isp/ib-spotnet/ca.crt"
+            "https://netfree.link/cacert/isp/ib-partner/ca.crt"
+            "https://netfree.link/cacert/isp/netfree-anywhere/ca.crt"
+            "https://netfree.link/cacert/isp/kosher-sim/ca.crt"
+            "https://netfree.link/cacert/isp/sim-kasher-triple-c/ca.crt"
+            "https://netfree.link/cacert/isp/ksim-partner/ca.crt"
+            "https://netfree.link/cacert/isp/ksim-pele/ca.crt"
+            "https://netfree.link/cacert/isp/ksim-itc/ca.crt"
+            "https://netfree.link/cacert/isp/kosher-sim-cellcom/ca.crt"
+            "https://netfree.link/cacert/isp/amitnet/ca.crt"
+            "https://netfree.link/cacert/isp/bezeq/ca.crt"
+            "https://netfree.link/cacert/isp/hot/ca.crt"
           )
-          
-          # Détermine le mot de passe du keystore (par défaut "changeit")
+
+          # Mot de passe du keystore (par défaut "changeit")
           KEYSTORE_PASS="${{ secrets.KEYSTORE_PASSWORD }}"
           if [ -z "$KEYSTORE_PASS" ]; then
-          KEYSTORE_PASS="changeit"
+            KEYSTORE_PASS="changeit"
           fi
-          
+
           echo "Importing certificates..."
           for i in "${!CERT_URLS[@]}"; do
-          CERT_URL="${CERT_URLS[$i]}"
-          CERT_ALIAS="custom-cert-$i"
+            CERT_URL="${CERT_URLS[$i]}"
+            CERT_ALIAS="custom-cert-$i"
 
-          # Télécharge le certificat
-          curl -fsSL "$CERT_URL" -o "cert-$i.crt"
+            curl -fsSL "$CERT_URL" -o "cert-$i.crt"
 
-          # Import en fonction de l'OS
-          if [ "$RUNNER_OS" = "Windows" ]; then
-           # Sur Windows + bash, on utilise $JAVA_HOME
-           keytool -importcert \
-             -file "cert-$i.crt" \
-             -alias "$CERT_ALIAS" \
-             -keystore "$JAVA_HOME/lib/security/cacerts" \
-             -storepass "$KEYSTORE_PASS" \
-             -trustcacerts -noprompt
-          else
-           # Linux/macOS
-           sudo keytool -importcert \
-             -file "cert-$i.crt" \
-             -alias "$CERT_ALIAS" \
-             -keystore "$JAVA_HOME/lib/security/cacerts" \
-             -storepass "$KEYSTORE_PASS" \
-             -trustcacerts -noprompt
-          fi
+            # Sur Windows => pas de sudo
+            # Sur Linux/macOS => souvent besoin de sudo
+            # Ici on utilise la variable $RUNNER_OS pour distinguer
+            if [ "$RUNNER_OS" = "Windows" ]; then
+              keytool -importcert \
+                -file "cert-$i.crt" \
+                -alias "$CERT_ALIAS" \
+                -keystore "$JAVA_HOME/lib/security/cacerts" \
+                -storepass "$KEYSTORE_PASS" \
+                -trustcacerts -noprompt
+            else
+              sudo keytool -importcert \
+                -file "cert-$i.crt" \
+                -alias "$CERT_ALIAS" \
+                -keystore "$JAVA_HOME/lib/security/cacerts" \
+                -storepass "$KEYSTORE_PASS" \
+                -trustcacerts -noprompt
+            fi
 
-          echo "Certificate $CERT_ALIAS imported successfully."
-          done      
+            echo "Certificate $CERT_ALIAS imported successfully."
+          done
 
-      # 4. Set up Gradle
+      # 4. Mettre en place Gradle (optionnel si vous avez un wrapper)
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: '8.12'
 
-      # 5. Build the application
+      # 5. Construire l'application (packager)
+      #    Les jvmArgs sont définis dans votre build.gradle(.kts) :
+      #    jvmArgs += listOf("-Djavax.net.ssl.trustStore=${System.getProperty("java.home")}/lib/security/cacerts")
       - name: Build with Gradle
         run: ./gradlew packageDistributionForCurrentOS
 
-      # 6. Upload OS-specific artifacts
+      # 6. Publier les artéfacts
       - name: Upload Linux artifact
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
@@ -128,11 +129,9 @@ jobs:
       contents: write
 
     steps:
-      # 1. Check out the source code
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # 2. Download artifacts from all platforms
       - name: Download Linux artifact
         uses: actions/download-artifact@v4
         with:
@@ -148,11 +147,9 @@ jobs:
         with:
           name: windows-msi
 
-      # 3. List downloaded artifacts
       - name: Check downloaded artifacts
         run: ls -R
 
-      # 4. Create GitHub Release
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:

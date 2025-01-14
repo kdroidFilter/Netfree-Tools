@@ -64,6 +64,7 @@ android {
 compose.desktop {
     application {
         mainClass = "MainKt"
+        jvmArgs += listOf("-Djavax.net.ssl.trustStore=${System.getProperty("java.home")}/lib/security/cacerts")
 
         nativeDistributions {
             targetFormats(TargetFormat.Pkg, TargetFormat.Msi, TargetFormat.Deb)
