@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config>
+        <trust-anchors>
+            <certificates src="@raw/netfree_019"/>
+            <certificates src="@raw/netfree_bezeq"/>
+            <certificates src="@raw/netfree_018"/>
+            <certificates src="@raw/netfree_099"/>
+            <certificates src="@raw/netfree_amitnet"/>
+            <certificates src="@raw/netfree_anywhere"/>
+            <certificates src="@raw/netfree_hadran_vpn"/>
+            <certificates src="@raw/netfree_hot"/>
+            <certificates src="@raw/netfree_ib_itc"/>
+            <certificates src="@raw/netfree_ib_partner"/>
+            <certificates src="@raw/netfree_ib_spotnet"/>
+            <certificates src="@raw/netfree_itc"/>
+            <certificates src="@raw/netfree_rl"/>
+            <certificates src="@raw/netfree_simkasher_cellcom"/>
+            <certificates src="@raw/netfree_simkasher_hot"/>
+            <certificates src="@raw/netfree_simkasher_itc"/>
+            <certificates src="@raw/netfree_simkasher_patner"/>
+            <certificates src="@raw/netfree_simkasher_pelephone"/>
+            <certificates src="@raw/netfree_simkasher_triplec"/>
+            <certificates src="@raw/netfree_x2one"/>
+            <certificates src="@raw/netfree_yossitikshoret"/>
+            <certificates src="system"/>
+        </trust-anchors>
+    </base-config>
+</network-security-config>
