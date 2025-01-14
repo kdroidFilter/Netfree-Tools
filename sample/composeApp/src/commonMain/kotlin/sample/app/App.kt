@@ -28,7 +28,7 @@ fun ConnectivityTesterApp() {
     val sites = listOf(
         "https://www.google.com",
         "https://www.github.com",
-        "https://www.amazon.com",
+        "https://www.amazon.com"
     )
 
     val results = remember { mutableStateOf<Map<String, Boolean>>(emptyMap()) }
