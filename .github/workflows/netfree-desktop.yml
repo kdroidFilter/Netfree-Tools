@@ -31,58 +31,63 @@ jobs:
         run: |
           # Liste des URLs des certificats
           CERT_URLS=(
-            "https://netfree.link/cacert/isp/018/ca.crt"
-            "https://netfree.link/cacert/isp/019/ca.crt"
-            "https://netfree.link/cacert/isp/099/ca.crt"
-            "https://netfree.link/cacert/isp/itc/ca.crt"
-            "https://netfree.link/cacert/isp/x2one/ca.crt"
-            "https://netfree.link/cacert/isp/hadran-vpn/ca.crt"
-            "https://netfree.link/cacert/isp/yossi/ca.crt"
-            "https://netfree.link/cacert/isp/ib-itc/ca.crt"
-            "https://netfree.link/cacert/isp/ib-spotnet/ca.crt"
-            "https://netfree.link/cacert/isp/ib-partner/ca.crt"
-            "https://netfree.link/cacert/isp/netfree-anywhere/ca.crt"
-            "https://netfree.link/cacert/isp/kosher-sim/ca.crt"
-            "https://netfree.link/cacert/isp/sim-kasher-triple-c/ca.crt"
-            "https://netfree.link/cacert/isp/ksim-partner/ca.crt"
-            "https://netfree.link/cacert/isp/ksim-pele/ca.crt"
-            "https://netfree.link/cacert/isp/ksim-itc/ca.crt"
-            "https://netfree.link/cacert/isp/kosher-sim-cellcom/ca.crt"
-            "https://netfree.link/cacert/isp/amitnet/ca.crt"
-            "https://netfree.link/cacert/isp/bezeq/ca.crt"
-            "https://netfree.link/cacert/isp/hot/ca.crt"
+          "https://netfree.link/cacert/isp/018/ca.crt"
+          "https://netfree.link/cacert/isp/019/ca.crt"
+          "https://netfree.link/cacert/isp/099/ca.crt"
+          "https://netfree.link/cacert/isp/itc/ca.crt"
+          "https://netfree.link/cacert/isp/x2one/ca.crt"
+          "https://netfree.link/cacert/isp/hadran-vpn/ca.crt"
+          "https://netfree.link/cacert/isp/yossi/ca.crt"
+          "https://netfree.link/cacert/isp/ib-itc/ca.crt"
+          "https://netfree.link/cacert/isp/ib-spotnet/ca.crt"
+          "https://netfree.link/cacert/isp/ib-partner/ca.crt"
+          "https://netfree.link/cacert/isp/netfree-anywhere/ca.crt"
+          "https://netfree.link/cacert/isp/kosher-sim/ca.crt"
+          "https://netfree.link/cacert/isp/sim-kasher-triple-c/ca.crt"
+          "https://netfree.link/cacert/isp/ksim-partner/ca.crt"
+          "https://netfree.link/cacert/isp/ksim-pele/ca.crt"
+          "https://netfree.link/cacert/isp/ksim-itc/ca.crt"
+          "https://netfree.link/cacert/isp/kosher-sim-cellcom/ca.crt"
+          "https://netfree.link/cacert/isp/amitnet/ca.crt"
+          "https://netfree.link/cacert/isp/bezeq/ca.crt"
+          "https://netfree.link/cacert/isp/hot/ca.crt"
           )
-
+          
           # Détermine le mot de passe du keystore (par défaut "changeit")
           KEYSTORE_PASS="${{ secrets.KEYSTORE_PASSWORD }}"
           if [ -z "$KEYSTORE_PASS" ]; then
-            KEYSTORE_PASS="changeit"
+          KEYSTORE_PASS="changeit"
           fi
-
+          
           echo "Importing certificates..."
           for i in "${!CERT_URLS[@]}"; do
-            CERT_URL="${CERT_URLS[$i]}"
-            CERT_ALIAS="custom-cert-$i"
+          CERT_URL="${CERT_URLS[$i]}"
+          CERT_ALIAS="custom-cert-$i"
 
-            # Télécharge le certificat
-            curl -fsSL "$CERT_URL" -o "cert-$i.crt"
+          # Télécharge le certificat
+          curl -fsSL "$CERT_URL" -o "cert-$i.crt"
 
-            if [ "$RUNNER_OS" = "Windows" ]; then
-              # Sur Windows, on lance tout sur UNE SEULE ligne
-              keytool -importcert -file "cert-$i.crt" -alias "$CERT_ALIAS" -keystore "%JAVA_HOME%\\lib\\security\\cacerts" -storepass "%KEYSTORE_PASS%" -trustcacerts -noprompt
-            else
-              # Sur Linux/macOS
-              sudo keytool -importcert \
-                -file "cert-$i.crt" \
-                -alias "$CERT_ALIAS" \
-                -keystore "$JAVA_HOME/lib/security/cacerts" \
-                -storepass "$KEYSTORE_PASS" \
-                -trustcacerts -noprompt
-            fi
+          # Import en fonction de l'OS
+          if [ "$RUNNER_OS" = "Windows" ]; then
+           # Sur Windows + bash, on utilise $JAVA_HOME
+           keytool -importcert \
+             -file "cert-$i.crt" \
+             -alias "$CERT_ALIAS" \
+             -keystore "$JAVA_HOME/lib/security/cacerts" \
+             -storepass "$KEYSTORE_PASS" \
+             -trustcacerts -noprompt
+          else
+           # Linux/macOS
+           sudo keytool -importcert \
+             -file "cert-$i.crt" \
+             -alias "$CERT_ALIAS" \
+             -keystore "$JAVA_HOME/lib/security/cacerts" \
+             -storepass "$KEYSTORE_PASS" \
+             -trustcacerts -noprompt
+          fi
 
-            echo "Certificate $CERT_ALIAS imported successfully."
-          done
-      
+          echo "Certificate $CERT_ALIAS imported successfully."
+          done      
 
       # 4. Set up Gradle
       - name: Set up Gradle
