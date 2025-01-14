@@ -101,13 +101,22 @@ jobs:
           JAVA_HOME: ${{ env.JAVA_HOME }}
 
       # 5. Construire l'application avec le Java patché
-      - name: Build with Gradle
+      - name: Build with Gradle (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          set JAVA_HOME=${{ env.JAVA_HOME }}
+          .\gradlew -Dorg.gradle.java.home=%JAVA_HOME% packageDistributionForCurrentOS
+
+      - name: Build with Gradle (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
         run: |
           ./gradlew -Dorg.gradle.java.home="${JAVA_HOME}" packageDistributionForCurrentOS
         env:
           JAVA_HOME: ${{ env.JAVA_HOME }}
 
-      # Le reste du workflow reste inchangé...
+      # 6. Publier les artéfacts
       - name: Upload Linux artifact
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
