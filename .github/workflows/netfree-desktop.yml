@@ -59,7 +59,6 @@ jobs:
             KEYSTORE_PASS="changeit"
           fi
 
-          # Importation des certificats
           echo "Importing certificates..."
           for i in "${!CERT_URLS[@]}"; do
             CERT_URL="${CERT_URLS[$i]}"
@@ -68,28 +67,22 @@ jobs:
             # Télécharge le certificat
             curl -fsSL "$CERT_URL" -o "cert-$i.crt"
 
-            # Importe dans le keystore cacerts
-            case "$RUNNER_OS" in
-              "Linux"|"macOS")
-                sudo keytool -importcert \
-                  -file "cert-$i.crt" \
-                  -alias "$CERT_ALIAS" \
-                  -keystore "$JAVA_HOME/lib/security/cacerts" \
-                  -storepass "$KEYSTORE_PASS" \
-                  -trustcacerts -noprompt
-                ;;
-              "Windows")
-                keytool -importcert ^
-                  -file "cert-$i.crt" ^
-                  -alias "$CERT_ALIAS" ^
-                  -keystore "%JAVA_HOME%\\lib\\security\\cacerts" ^
-                  -storepass "%KEYSTORE_PASS%" ^
-                  -trustcacerts -noprompt
-                ;;
-            esac
+            if [ "$RUNNER_OS" = "Windows" ]; then
+              # Sur Windows, on lance tout sur UNE SEULE ligne
+              keytool -importcert -file "cert-$i.crt" -alias "$CERT_ALIAS" -keystore "%JAVA_HOME%\\lib\\security\\cacerts" -storepass "%KEYSTORE_PASS%" -trustcacerts -noprompt
+            else
+              # Sur Linux/macOS
+              sudo keytool -importcert \
+                -file "cert-$i.crt" \
+                -alias "$CERT_ALIAS" \
+                -keystore "$JAVA_HOME/lib/security/cacerts" \
+                -storepass "$KEYSTORE_PASS" \
+                -trustcacerts -noprompt
+            fi
 
             echo "Certificate $CERT_ALIAS imported successfully."
           done
+      
 
       # 4. Set up Gradle
       - name: Set up Gradle
