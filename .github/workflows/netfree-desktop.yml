@@ -2,11 +2,8 @@ name: Build and Release Compose Desktop App with temurin JDK
 
 on:
   push:
-    tags:
-      - 'v*'
-    push:
-      branches:
-        - master
+    branches:
+      - master
 
 jobs:
   build:
