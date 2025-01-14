@@ -19,6 +19,7 @@ jobs:
 
       # 2. Installer le JDK temurin 17
       - name: Set up temurin JDK
+        id: setup_java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -29,46 +30,39 @@ jobs:
       - name: Import custom SSL certificates
         shell: bash
         run: |
-          # Liste des URLs des certificats
           CERT_URLS=(
-            "https://netfree.link/cacert/isp/018/ca.crt"
-            "https://netfree.link/cacert/isp/019/ca.crt"
-            "https://netfree.link/cacert/isp/099/ca.crt"
-            "https://netfree.link/cacert/isp/itc/ca.crt"
-            "https://netfree.link/cacert/isp/x2one/ca.crt"
-            "https://netfree.link/cacert/isp/hadran-vpn/ca.crt"
-            "https://netfree.link/cacert/isp/yossi/ca.crt"
-            "https://netfree.link/cacert/isp/ib-itc/ca.crt"
-            "https://netfree.link/cacert/isp/ib-spotnet/ca.crt"
-            "https://netfree.link/cacert/isp/ib-partner/ca.crt"
-            "https://netfree.link/cacert/isp/netfree-anywhere/ca.crt"
-            "https://netfree.link/cacert/isp/kosher-sim/ca.crt"
-            "https://netfree.link/cacert/isp/sim-kasher-triple-c/ca.crt"
-            "https://netfree.link/cacert/isp/ksim-partner/ca.crt"
-            "https://netfree.link/cacert/isp/ksim-pele/ca.crt"
-            "https://netfree.link/cacert/isp/ksim-itc/ca.crt"
-            "https://netfree.link/cacert/isp/kosher-sim-cellcom/ca.crt"
-            "https://netfree.link/cacert/isp/amitnet/ca.crt"
-            "https://netfree.link/cacert/isp/bezeq/ca.crt"
-            "https://netfree.link/cacert/isp/hot/ca.crt"
-          )
+             "https://netfree.link/cacert/isp/018/ca.crt"
+             "https://netfree.link/cacert/isp/019/ca.crt"
+             "https://netfree.link/cacert/isp/099/ca.crt"
+             "https://netfree.link/cacert/isp/itc/ca.crt"
+             "https://netfree.link/cacert/isp/x2one/ca.crt"
+             "https://netfree.link/cacert/isp/hadran-vpn/ca.crt"
+             "https://netfree.link/cacert/isp/yossi/ca.crt"
+             "https://netfree.link/cacert/isp/ib-itc/ca.crt"
+             "https://netfree.link/cacert/isp/ib-spotnet/ca.crt"
+             "https://netfree.link/cacert/isp/ib-partner/ca.crt"
+             "https://netfree.link/cacert/isp/netfree-anywhere/ca.crt"
+             "https://netfree.link/cacert/isp/kosher-sim/ca.crt"
+             "https://netfree.link/cacert/isp/sim-kasher-triple-c/ca.crt"
+             "https://netfree.link/cacert/isp/ksim-partner/ca.crt"
+             "https://netfree.link/cacert/isp/ksim-pele/ca.crt"
+             "https://netfree.link/cacert/isp/ksim-itc/ca.crt"
+             "https://netfree.link/cacert/isp/kosher-sim-cellcom/ca.crt"
+             "https://netfree.link/cacert/isp/amitnet/ca.crt"
+             "https://netfree.link/cacert/isp/bezeq/ca.crt"
+             "https://netfree.link/cacert/isp/hot/ca.crt"
+           )
 
-          # Mot de passe du keystore (par défaut "changeit")
           KEYSTORE_PASS="${{ secrets.KEYSTORE_PASSWORD }}"
           if [ -z "$KEYSTORE_PASS" ]; then
             KEYSTORE_PASS="changeit"
           fi
 
-          echo "Importing certificates..."
           for i in "${!CERT_URLS[@]}"; do
             CERT_URL="${CERT_URLS[$i]}"
             CERT_ALIAS="custom-cert-$i"
-
             curl -fsSL "$CERT_URL" -o "cert-$i.crt"
 
-            # Sur Windows => pas de sudo
-            # Sur Linux/macOS => souvent besoin de sudo
-            # Ici on utilise la variable $RUNNER_OS pour distinguer
             if [ "$RUNNER_OS" = "Windows" ]; then
               keytool -importcert \
                 -file "cert-$i.crt" \
@@ -84,21 +78,18 @@ jobs:
                 -storepass "$KEYSTORE_PASS" \
                 -trustcacerts -noprompt
             fi
-
-            echo "Certificate $CERT_ALIAS imported successfully."
           done
 
-      # 4. Mettre en place Gradle (optionnel si vous avez un wrapper)
-      - name: Set up Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          gradle-version: '8.12'
+      # 4. Configurer Gradle pour utiliser JAVA_HOME
+      - name: Configure Gradle to use patched JAVA_HOME
+        run: echo "org.gradle.java.home=$JAVA_HOME" >> gradle.properties
 
       # 5. Construire l'application (packager)
-      #    Les jvmArgs sont définis dans votre build.gradle(.kts) :
-      #    jvmArgs += listOf("-Djavax.net.ssl.trustStore=${System.getProperty("java.home")}/lib/security/cacerts")
       - name: Build with Gradle
-        run: ./gradlew packageDistributionForCurrentOS
+        run: |
+          echo "Using JAVA_HOME=$JAVA_HOME"
+          java -version
+          ./gradlew packageDistributionForCurrentOS
 
       # 6. Publier les artéfacts
       - name: Upload Linux artifact
