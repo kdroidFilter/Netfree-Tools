@@ -30,10 +30,24 @@ jobs:
       - name: Export JAVA_HOME
         run: echo "JAVA_HOME=${{ steps.setup_java.outputs.java-home }}" >> $GITHUB_ENV
 
-      # 4. Importer les certificats custom dans la JVM installée
+        # 4. Importer les certificats custom dans la JVM installée
       - name: Import custom SSL certificates
         shell: bash
         run: |
+          if [ -z "$JAVA_HOME" ]; then
+            echo "Error: JAVA_HOME is not set."
+            exit 1
+          fi
+
+          CACERTS_PATH="$JAVA_HOME/lib/security/cacerts"
+
+          # Vérification si le fichier existe
+          if [ ! -f "$CACERTS_PATH" ]; then
+            echo "Error: Keystore not found at $CACERTS_PATH"
+            ls -l "$JAVA_HOME/lib/security"
+            exit 1
+          fi
+
           CERT_URLS=(
             "https://netfree.link/cacert/isp/018/ca.crt"
             "https://netfree.link/cacert/isp/019/ca.crt"
@@ -62,18 +76,14 @@ jobs:
             KEYSTORE_PASS="changeit"
           fi
 
-          CACERTS_PATH="$JAVA_HOME/lib/security/cacerts"
-          if [ ! -f "$CACERTS_PATH" ]; then
-            echo "Error: Keystore not found at $CACERTS_PATH"
-            exit 1
-          fi
-
+          echo "Importing certificates..."
           for i in "${!CERT_URLS[@]}"; do
             CERT_URL="${CERT_URLS[$i]}"
             CERT_ALIAS="custom-cert-$i"
             curl -fsSL "$CERT_URL" -o "cert-$i.crt"
 
             if [ "$RUNNER_OS" = "Windows" ]; then
+              CACERTS_PATH=$(echo "$CACERTS_PATH" | sed 's/\\\\/\\//g') # Remplace \\ par /
               keytool -importcert \
                 -file "cert-$i.crt" \
                 -alias "$CERT_ALIAS" \
@@ -89,6 +99,7 @@ jobs:
                 -trustcacerts -noprompt
             fi
           done
+
 
       # 5. Configurer Gradle pour utiliser JAVA_HOME
       - name: Configure Gradle
