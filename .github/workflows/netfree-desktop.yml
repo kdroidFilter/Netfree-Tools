@@ -62,6 +62,12 @@ jobs:
             KEYSTORE_PASS="changeit"
           fi
 
+          CACERTS_PATH="$JAVA_HOME/lib/security/cacerts"
+          if [ ! -f "$CACERTS_PATH" ]; then
+            echo "Error: Keystore not found at $CACERTS_PATH"
+            exit 1
+          fi
+
           for i in "${!CERT_URLS[@]}"; do
             CERT_URL="${CERT_URLS[$i]}"
             CERT_ALIAS="custom-cert-$i"
@@ -71,14 +77,14 @@ jobs:
               keytool -importcert \
                 -file "cert-$i.crt" \
                 -alias "$CERT_ALIAS" \
-                -keystore "$JAVA_HOME/lib/security/cacerts" \
+                -keystore "$CACERTS_PATH" \
                 -storepass "$KEYSTORE_PASS" \
                 -trustcacerts -noprompt
             else
               sudo keytool -importcert \
                 -file "cert-$i.crt" \
                 -alias "$CERT_ALIAS" \
-                -keystore "$JAVA_HOME/lib/security/cacerts" \
+                -keystore "$CACERTS_PATH" \
                 -storepass "$KEYSTORE_PASS" \
                 -trustcacerts -noprompt
             fi
