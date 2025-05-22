@@ -28,8 +28,8 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-include(":nftools")
-include(":nftools-certificates")
+include(":core")
+include(":android-certificates")
 include(":sample:composeApp")
 include(":sample:terminalApp")
 

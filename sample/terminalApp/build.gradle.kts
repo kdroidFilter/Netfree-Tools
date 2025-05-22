@@ -16,7 +16,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":nftools"))
+            implementation(project(":core"))
         }
     }
 }

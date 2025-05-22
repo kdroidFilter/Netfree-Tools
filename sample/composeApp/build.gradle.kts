@@ -30,7 +30,7 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(libs.kotlinx.coroutines.core)
-            implementation(project(":nftools"))
+            implementation(project(":core"))
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.cio)
 
