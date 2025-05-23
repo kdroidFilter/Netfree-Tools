@@ -40,8 +40,6 @@ implementation("io.github.kdroidfilter:netfreetools.network:1.0.1")
 implementation("io.github.kdroidfilter:netfreetools.certificates:1.0.1")
 ```
 
-Replace `VERSION` with the current `libVersion` (see [gradle.properties](gradle.properties)). 🔖
-
 ---
 
 ## 📚 Usage
