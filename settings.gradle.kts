@@ -29,7 +29,9 @@ dependencyResolutionManagement {
     }
 }
 include(":core")
+include(":network")
 include(":android-certificates")
 include(":sample:composeApp")
 include(":sample:terminalApp")
+
 

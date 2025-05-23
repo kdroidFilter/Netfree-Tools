@@ -6,8 +6,11 @@ plugins {
     alias(libs.plugins.vannitktech.maven.publish)
 }
 
+val libVersion : String by rootProject.extra
+
+
 group = "io.github.kdroidfilter.netfreetools.certificates"
-version = "1.0.0"
+version = libVersion
 
 kotlin {
     jvmToolchain(17)
@@ -72,10 +75,9 @@ mavenPublishing {
                 email.set("elyahou.hadass@gmail.com")
             }
         }
-
         scm {
-            connection.set("scm:git:git://github.com/kdroidFilter/platformtools.git")
-            developerConnection.set("scm:git:ssh://git@github.com:kdroidFilter/platformtools.git")
+            connection.set("scm:git:git://github.com/kdroidFilter/Netfree-Tools.git")
+            developerConnection.set("scm:git:ssh://github.com/kdroidFilter/Netfree-Tools.git")
             url.set("https://github.com/kdroidFilter/platformtools")
         }
     }

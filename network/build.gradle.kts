@@ -6,10 +6,9 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.vannitktech.maven.publish)
 }
-
 val libVersion : String by rootProject.extra
 
-group = "io.github.kdroidfilter.netfreetools.core"
+group = "io.github.kdroidfilter.netfreetools.network"
 version = libVersion
 
 kotlin {
@@ -29,35 +28,51 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":core"))
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.coroutines.test)
             implementation(libs.kotlinx.serialization.json)
-
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.serialization)
+            implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.ktor.client.logging)
         }
 
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation(libs.ktor.client.mock)
+            implementation(libs.kotlinx.coroutines.test)
         }
 
         androidMain.dependencies {
-
+            implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.ktor.client.okhttp)
         }
 
         jvmMain.dependencies {
-
+            implementation(libs.kotlinx.coroutines.swing)
+            implementation(libs.ktor.client.okhttp)
         }
 
         jsMain.dependencies {
+            implementation(libs.ktor.client.js)
         }
 
         iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
 
         macosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
 
         linuxMain.dependencies {
+            implementation(libs.ktor.client.curl)
         }
 
         mingwMain.dependencies {
+            implementation(libs.ktor.client.winhttp)
         }
 
     }
@@ -74,7 +89,7 @@ kotlin {
 }
 
 android {
-    namespace = "io.github.kdroidfilter.netfreetools.core"
+    namespace = "io.github.kdroidfilter.netfreetools.network"
     compileSdk = 35
 
     defaultConfig {
@@ -85,13 +100,13 @@ android {
 mavenPublishing {
     coordinates(
         groupId = "io.github.kdroidfilter",
-        artifactId = "netfreetools.core",
+        artifactId = "netfreetools.network",
         version = version.toString()
     )
 
     pom {
-        name.set("Netfree Tools Core")
-        description.set("Core of Netfree Tools")
+        name.set("Netfree Tools Network")
+        description.set("Api client for Netfree Tools")
         inceptionYear.set("2025")
         url.set("https://github.com/kdroidFilter/")
 
