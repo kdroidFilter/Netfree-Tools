@@ -35,9 +35,9 @@ Netfree Tools is a Kotlin Multiplatform library designed to simplify integration
 Add the library modules as dependencies in your Gradle project:
 
 ```kotlin
-implementation("io.github.kdroidfilter.netfreetools:core:VERSION")
-implementation("io.github.kdroidfilter.netfreetools:network:VERSION")
-implementation("io.github.kdroidfilter.netfreetools.certificates:VERSION")
+implementation("io.github.kdroidfilter:netfreetools.core:1.0.1")
+implementation("io.github.kdroidfilter:netfreetools.network:1.0.1")
+implementation("io.github.kdroidfilter:netfreetools.certificates:1.0.1")
 ```
 
 Replace `VERSION` with the current `libVersion` (see [gradle.properties](gradle.properties)). 🔖
