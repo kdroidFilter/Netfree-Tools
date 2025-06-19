@@ -32,11 +32,11 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.ktor.client.serialization)
-            implementation(libs.ktor.serialization.kotlinx.json)
-            implementation(libs.ktor.client.logging)
+            compileOnly(libs.ktor.client.core)
+            compileOnly(libs.ktor.client.content.negotiation)
+            compileOnly(libs.ktor.client.serialization)
+            compileOnly(libs.ktor.serialization.kotlinx.json)
+            compileOnly(libs.ktor.client.logging)
         }
 
         commonTest.dependencies {
