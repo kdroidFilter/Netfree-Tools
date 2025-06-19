@@ -1,5 +1,7 @@
 # Netfree Tools 🔧🌐
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.kdroidfilter/netfreetools.core.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.kdroidfilter%22%20AND%20a:%22netfreetools.core%22)
+
 Netfree Tools is a Kotlin Multiplatform library designed to simplify integration with the NetFree service. It provides core data models, network fetchers, Android certificate bundles, and sample applications demonstrating usage across multiple targets (JVM, Android, iOS, JavaScript, and native). 🚀
 
 ---
@@ -35,10 +37,18 @@ Netfree Tools is a Kotlin Multiplatform library designed to simplify integration
 Add the library modules as dependencies in your Gradle project:
 
 ```kotlin
-implementation("io.github.kdroidfilter:netfreetools.core:1.0.1")
-implementation("io.github.kdroidfilter:netfreetools.network:1.0.1")
-implementation("io.github.kdroidfilter:netfreetools.certificates:1.0.1")
+implementation("io.github.kdroidfilter:netfreetools.core:<version>")
+implementation("io.github.kdroidfilter:netfreetools.network:<version>")
+implementation("io.github.kdroidfilter:netfreetools.certificates:<version>")
 ```
+
+> **Note**: The network module uses Ktor dependencies as `compileOnly` to avoid compatibility issues with different Ktor versions. You need to include your own Ktor dependencies in your project:
+> ```kotlin
+> implementation("io.ktor:ktor-client-core:YOUR_KTOR_VERSION")
+> implementation("io.ktor:ktor-client-content-negotiation:YOUR_KTOR_VERSION")
+> implementation("io.ktor:ktor-serialization-kotlinx-json:YOUR_KTOR_VERSION")
+> // Add other Ktor dependencies as needed
+> ```
 
 ---
 
