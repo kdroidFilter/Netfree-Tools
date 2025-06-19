@@ -43,6 +43,7 @@ kotlin {
 
         androidMain.dependencies {
             implementation(libs.androidx.activityCompose)
+            implementation(project(":android-certificates"))
         }
 
         jvmMain.dependencies {
