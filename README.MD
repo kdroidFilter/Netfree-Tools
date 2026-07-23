@@ -76,7 +76,20 @@ suspend fun checkNetFree() {
 
 ### Android Certificates Module
 
-Simply add the **android-certificates** dependency to your Android project—no further setup is required beyond the import. All NetFree CA certificates are automatically bundled and applied via the provided `network_security_config.xml`, ensuring your app trusts NetFree’s custom CAs without any additional configuration. 🔒---
+Simply add the **android-certificates** dependency to your Android project, no further setup is required beyond the import. All NetFree CA certificates are automatically bundled and applied via the provided `network_security_config.xml`, ensuring your app trusts NetFree's custom CAs without any additional configuration. 🔒
+
+The bundle contains:
+
+* The current unified **NetFree Root CA X2** roots (RSA, RSA 2037, ECC256, ECC384, ED25519), which are the ones NetFree signs with today.
+* The **legacy unified roots**, still used by accounts that have not been migrated to X2.
+* The remaining **per ISP `NetFree Sign` certificates** from the previous generation, for older deployments.
+
+Two limitations are worth keeping in mind:
+
+* `network-security-config` trust anchors only apply from API 24. On API 21 to 23 the certificates are ignored.
+* The configuration only affects the Android TLS stack (`HttpsURLConnection`, OkHttp, WebView). Components shipping their own trust store, such as Flutter, Cronet or native code linked against its own TLS library, are not covered.
+
+---
 
 ---
 
